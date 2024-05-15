@@ -2,8 +2,8 @@ const { Engine, Render, Runner, World, Bodies, Body, Events } = Matter;
 
 const width = window.innerWidth;
 const height = window.innerHeight;
-const cellsHorizontal = 14;
-const cellsVertical = 10;
+const cellsHorizontal = 3;
+const cellsVertical = 3;
 
 const unitLengthX = width / cellsHorizontal;
 const unitLengthY = height / cellsVertical;
@@ -194,21 +194,21 @@ const ballRadius = Math.min(unitLengthX, unitLengthY) / 4;
 const ball = Bodies.circle(unitLengthX / 2, unitLengthY / 2, ballRadius, {
   label: "ball",
   render: {
-    fillStyle: "white",
+    fillStyle: "blue",
   },
 });
 World.add(world, ball);
-
+const velocity = 5;
 document.addEventListener("keydown", (event) => {
   const { x, y } = ball.velocity;
   if (event.code === "KeyW") {
-    Body.setVelocity(ball, { x, y: y - 5 });
+    Body.setVelocity(ball, { x, y: -5 });
   } else if (event.code === "KeyA") {
-    Body.setVelocity(ball, { x: x - 5, y: y });
+    Body.setVelocity(ball, { x: -5, y: y });
   } else if (event.code === "KeyD") {
-    Body.setVelocity(ball, { x: x + 5, y });
+    Body.setVelocity(ball, { x: 5, y });
   } else if (event.code === "KeyS") {
-    Body.setVelocity(ball, { x, y: y + 5 });
+    Body.setVelocity(ball, { x, y: 5 });
   }
 });
 
@@ -220,6 +220,7 @@ Events.on(engine, "collisionStart", (event) => {
       labels.includes(collision.bodyA.label) &&
       labels.includes(collision.bodyB.label)
     ) {
+      document.querySelector(".winner").classList.remove("hidden");
       world.gravity.y = 1;
 
       for (body of world.bodies) {
