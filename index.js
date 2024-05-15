@@ -1,8 +1,8 @@
-const { Engine, Render, Runner, World, Bodies, Body } = Matter;
+const { Engine, Render, Runner, World, Bodies, Body, Events } = Matter;
 
 const width = 600;
 const height = 600;
-const cells = 10;
+const cells = 6;
 
 const unitLength = width / cells;
 const engine = Engine.create();
@@ -126,6 +126,7 @@ horizontals.forEach((row, rowIndex) => {
       unitLength,
       10,
       {
+        label: "wall",
         isStatic: true,
         fillStroke: "red",
         wireframes: false,
@@ -154,6 +155,7 @@ verticals.forEach((row, rowIndex) => {
       unitLength,
       {
         isStatic: true,
+        label: "wall",
         fillStroke: "red",
         wireframes: false,
         background: "white",
@@ -175,6 +177,7 @@ const goal = Bodies.rectangle(
   unitLength / 2,
   unitLength / 2,
   {
+    label: "goal",
     isStatic: true,
     render: {
       fillStyle: "green",
@@ -185,6 +188,7 @@ World.add(world, goal);
 
 //Ball
 const ball = Bodies.circle(unitLength / 2, unitLength / 2, unitLength * 0.25, {
+  label: "ball",
   render: {
     fillStyle: "white",
   },
@@ -193,7 +197,6 @@ World.add(world, ball);
 
 document.addEventListener("keydown", (event) => {
   const { x, y } = ball.velocity;
-  console.log(x, y);
   if (event.code === "KeyW") {
     Body.setVelocity(ball, { x, y: y - 5 });
   } else if (event.code === "KeyA") {
@@ -203,4 +206,23 @@ document.addEventListener("keydown", (event) => {
   } else if (event.code === "KeyS") {
     Body.setVelocity(ball, { x, y: y + 5 });
   }
+});
+
+//win condition
+Events.on(engine, "collisionStart", (event) => {
+  event.pairs.forEach((collision) => {
+    const labels = ["ball", "goal"];
+    if (
+      labels.includes(collision.bodyA.label) &&
+      labels.includes(collision.bodyB.label)
+    ) {
+      world.gravity.y = 1;
+
+      for (body of world.bodies) {
+        if (body.label === "wall") {
+          Body.setStatic(body, false);
+        }
+      }
+    }
+  });
 });
